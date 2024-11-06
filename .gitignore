@@ -1,0 +1,43 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+
+# Virtual environment folders
+venv/
+env/
+
+# Django-specific
+db.sqlite3
+*.log
+
+# Static and media files
+/staticfiles/
+/media/
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Build and cache folders
+*.egg-info/
+*.eggs/
+dist/
+build/
+
+# Node.js dependencies
+node_modules/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+# Ignore migration files
+*/migrations/*.py
+!*/migrations/__init__.py
