@@ -23,3 +23,6 @@ class CustomUserAdmin(UserAdmin):
     ordering = ('email',)
     
 admin.site.register(get_user_model(), CustomUserAdmin)
+admin.site.register(Category)
+admin.site.register(VarientType)
+admin.site.register(Varient_Values)
