@@ -85,22 +85,30 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
+                {% if product_objs %}
                 <div class="men-item-carousel">
                     <div class="owl-men-item owl-carousel">
+                        {% for product in product_objs %}
                         <div class="item">
                             <div class="thumb">
                                 <div class="hover-content">
                                     <ul>
-                                        <li><a href="single-product.html"><i class="fa fa-eye"></i></a></li>
-                                        <li><a href="single-product.html"><i class="fa fa-star"></i></a></li>
-                                        <li><a href="single-product.html"><i class="fa fa-shopping-cart"></i></a></li>
+                                        <li><a href=""><i class="fa fa-eye"></i></a></li>
+                                        <li><a href=""><i class="fa fa-star"></i></a></li>
+                                        <li><a href=""><i class="fa fa-shopping-cart"></i></a></li>
                                     </ul>
                                 </div>
-                                <img src="{% static 'assets/images/men-01.jpg' %}" alt="">
+                                <img src="{{ product.thumbnail_image.url }}" alt="">
                             </div>
                             <div class="down-content">
-                                <h4>Classic Spring</h4>
-                                <span>$120.00</span>
+                                <h4>{{ product.Name }}</h4>
+                                {% if product.Product_Items.all %}
+                                    {% with first_item=product.Product_Items.all|first %}
+                                        <span>{{ first_item.Selling_Prize }}</span>
+                                    {% endwith %}
+                                {% else %}
+                                    <span>No product items available.</span>
+                                {% endif %}
                                 <ul class="stars">
                                     <li><i class="fa fa-star"></i></li>
                                     <li><i class="fa fa-star"></i></li>
@@ -110,80 +118,16 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="item">
-                            <div class="thumb">
-                                <div class="hover-content">
-                                    <ul>
-                                        <li><a href="single-product.html"><i class="fa fa-eye"></i></a></li>
-                                        <li><a href="single-product.html"><i class="fa fa-star"></i></a></li>
-                                        <li><a href="single-product.html"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <img src="{% static 'assets/images/men-02.jpg' %}" alt="">
-                            </div>
-                            <div class="down-content">
-                                <h4>Air Force 1 X</h4>
-                                <span>$90.00</span>
-                                <ul class="stars">
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="thumb">
-                                <div class="hover-content">
-                                    <ul>
-                                        <li><a href="single-product.html"><i class="fa fa-eye"></i></a></li>
-                                        <li><a href="single-product.html"><i class="fa fa-star"></i></a></li>
-                                        <li><a href="single-product.html"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <img src="{% static 'assets/images/men-03.jpg' %}" alt="">
-                            </div>
-                            <div class="down-content">
-                                <h4>Love Nana ‘20</h4>
-                                <span>$150.00</span>
-                                <ul class="stars">
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="thumb">
-                                <div class="hover-content">
-                                    <ul>
-                                        <li><a href="single-product.html"><i class="fa fa-eye"></i></a></li>
-                                        <li><a href="single-product.html"><i class="fa fa-star"></i></a></li>
-                                        <li><a href="single-product.html"><i class="fa fa-shopping-cart"></i></a></li>
-                                    </ul>
-                                </div>
-                                <img src="{% static 'assets/images/men-01.jpg' %}" alt="">
-                            </div>
-                            <div class="down-content">
-                                <h4>Classic Spring</h4>
-                                <span>$120.00</span>
-                                <ul class="stars">
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                    <li><i class="fa fa-star"></i></li>
-                                </ul>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
+                {% else %}
+                    <p>No products available.</p>
+                {% endif %}
             </div>
         </div>
     </div>
+    
 </section>
 <!-- ***** Men Area Ends ***** -->
 
