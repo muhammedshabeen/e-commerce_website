@@ -4,11 +4,29 @@ from master.models import *
 from django.contrib import messages
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 
 
 
 def login(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        user = authenticate(request,email=email,password=password)
+        if user is not None:
+            # If the user is authenticated, log them in
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request,"Invalid credentials")
+            return redirect('login')
     return render(request,'registration/login.html')
+
+@login_required
+def logout(request):
+    request.session.flush()
+    return render(request,'registration/login.html')
+
 
 def home(request):
     product_objs = Product.objects.order_by('-id')[:10]
