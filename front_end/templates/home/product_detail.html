@@ -1,6 +1,55 @@
 {% extends "front_end_index/index.html" %}
 {% load static %}
 {% block content %}
+<style>
+    /* Style for the select dropdown */
+    .form-select-lg {
+        padding: 10px 15px;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+        background-color: #f8f9fa;
+        border: 2px solid #ced4da;
+        transition: all 0.3s ease;
+    }
+
+    .form-select-lg:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        outline: none;
+    }
+
+    /* Styling the dropdown icon */
+    .form-select-lg::after {
+        content: "▼";
+        position: absolute;
+        right: 15px;
+        pointer-events: none;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    /* Additional margin to fit the overall design */
+    .mb-3 {
+        margin-bottom: 1.5rem;
+    }
+
+    #submit-button{
+        border-color: #2a2a2a;
+        color: #2a2a2a;
+        font-size: 13px;
+        border: 1px solid #fff;
+        padding: 12px 25px;
+        display: inline-block;
+        font-weight: 500;
+        transition: all .3s;
+    }
+    #submit-button:hover {
+        background-color: #2a2a2a;
+        color: #fff;
+    }
+
+</style>
 <div class="page-heading" id="top">
     <div class="container">
         <div class="row">
@@ -18,87 +67,78 @@
 
 <!-- ***** Product Area Starts ***** -->
 <section class="section" id="product">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="left-images" id="image-gallery">
-                    <!-- Default display of the first variant's images -->
-                    {% for variant in product_obj.Product_Items.all %}
-                        {% for image in variant.varient_image.all %}
-                            <img src="{{ image.Images.url }}" alt="" class="product-image" data-variant="{{ variant.id }}">
+    <form method="post" action="{% url 'add_to_cart' %}" >
+        {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="left-images" id="image-gallery">
+                        {% for image in product_obj.varient_image.all %}
+                            <img src="{{ image.Images.url }}" alt="" class="product-image">
                         {% endfor %}
-                    {% endfor %}
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="right-content">
-                    <h4>{{product_obj.Name}}-{{product_obj.Last_name}}</h4>
-                    <span class="price">$75.00</span>
-                    <ul class="stars">
-                        <li><i class="fa fa-star"></i></li>
-                        <li><i class="fa fa-star"></i></li>
-                        <li><i class="fa fa-star"></i></li>
-                        <li><i class="fa fa-star"></i></li>
-                        <li><i class="fa fa-star"></i></li>
-                    </ul>
-                    <span>{{product_obj.Description}}</span>
-                    {% comment %} <div class="quote">
-                        <i class="fa fa-quote-left"></i><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiuski smod.</p>
-                    </div> {% endcomment %}
+                <div class="col-lg-4">
+                    <div class="right-content">
+                        <h4>{{product_obj.name}}-{{product_obj.last_name}}</h4>
+                        <input type="hidden" value="{{product_obj.selling_prize}}" id="hidden_price">
+                        <input type="hidden" value="{{product_obj.id}}" name="product_id">
+                        <span class="price">₹ {{product_obj.selling_prize}}</span>
+                        <ul class="stars">
+                            <li><i class="fa fa-star"></i></li>
+                            <li><i class="fa fa-star"></i></li>
+                            <li><i class="fa fa-star"></i></li>
+                            <li><i class="fa fa-star"></i></li>
+                            <li><i class="fa fa-star"></i></li>
+                        </ul>
+                        <span>{{product_obj.description}}</span>
+                        {% comment %} <div class="quote">
+                            <i class="fa fa-quote-left"></i><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiuski smod.</p>
+                        </div> {% endcomment %}
 
-
-                    <div class="quantity-content">
-                        <div class="left-content">
-                            <h6>Colors</h6>
-                        </div>
-                        <div class="right-content">
-                            <div class="quantity buttons_added">
-                                {% for variant in product_obj.Product_Items.all %}
-                                    <label>
-                                        <input type="radio" name="color" value="{{ variant.id }}" onclick="changeVariantImages({{ variant.id }})">
-                                        {{ variant.Varient_Values.varient_values }}
-                                    </label>
-                                {% endfor %}
+                        <hr>
+                        <div class="total">
+                            <h4>Size</h4>
+                            <div class="main-border-button">
+                                <select id="size-options" name="size" class="form-select form-select-lg mb-3" aria-label="Select size">
+                                    <option value="" disabled selected>Select size</option>
+                                    {% for size in product_obj.single_varient_value.all %}
+                                    <option value="{{size.varient_values}}">{{size.varient_values}}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
-                    </div>
+                        
+                        
+                        
 
-                    
-                    
-                    <div class="total">
-                        <h4>Size</h4>
-                        <div class="main-border-button">
-                            {% for variant in product_obj.Product_Items.all %}
-                                <label>
-                                    <input type="checkbox" name="size" value="S">
-                                    {{variant.VarientValues}}
-                                </label>
-                            {% endfor %}
-                        </div>
-                    </div>
+                        
 
+                        
 
-                    <div class="quantity-content">
-                        <div class="left-content">
-                            <h6>No. of Orders</h6>
-                        </div>
-                        <div class="right-content">
-                            <div class="quantity buttons_added">
-                                <input type="button" value="-" class="minus" onclick="updateQuantity(-1)">
-                                <input type="number" step="1" min="1" max="" name="quantity" value="1" title="Qty" id="quantity_product" class="input-text qty text" size="4" pattern="" inputmode="">
-                                <input type="button" value="+" class="plus" onclick="updateQuantity(1)">
+                        <div class="quantity-content">
+                            <div class="left-content">
+                                <h6>No. of Orders</h6>
+                            </div>
+                            <div class="right-content">
+                                <div class="quantity buttons_added">
+                                    <input type="button" value="-" class="minus" onclick="updateQuantity(-1)">
+                                    <input type="number" step="1" min="1" max="" name="quantity" value="1" title="Qty" id="quantity_product" class="input-text qty text" size="4" pattern="" inputmode="">
+                                    <input type="button" value="+" class="plus" onclick="updateQuantity(1)">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="total">
-                        <h4>Total: $210.00</h4>
-                        <div class="main-border-button"><a href="#">Add To Cart</a></div>
+                        <div class="total">
+                            <h4 id="total_price" ></h4>
+                            <div class="main-border-button"><input id="submit-button" type="submit" value="Add To Cart" ></div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </section>
 
 
@@ -107,6 +147,8 @@
 <script>
     function updateQuantity(change) {
         
+        const totalPrice = document.getElementById("total_price");
+        const hiddenPrice = parseInt(document.getElementById("hidden_price").value);
         const quantityInput = document.getElementById("quantity_product");
         let currentQuantity = parseInt(quantityInput.value);
     
@@ -118,26 +160,12 @@
             currentQuantity = 1;
         }
         quantityInput.value = currentQuantity;
+
+        const calculatedPrice = currentQuantity * hiddenPrice;
+        totalPrice.textContent = `Total : ₹ ${calculatedPrice.toFixed(2)}`;
     
         // Update the input field with the new quantity
     }
-</script>
-
-<script>
-    function changeVariantImages(variantId) {
-        // Get all product images
-        const allImages = document.querySelectorAll(".product-image");
-    
-        // Hide all images
-        allImages.forEach(img => {
-            img.style.display = "none";
-        });
-    
-        // Display only images for the selected variant
-        const selectedImages = document.querySelectorAll(`.product-image[data-variant='${variantId}']`);
-        selectedImages.forEach(img => {
-            img.style.display = "block";
-        });
-    }    
+    updateQuantity(0)
 </script>
 {% endblock %}

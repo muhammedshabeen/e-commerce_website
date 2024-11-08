@@ -82,52 +82,26 @@ class VarientType(BaseContent):
     
 class VarientValues(BaseContent):
     varient_values = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='varient_values_color',null=True,blank=True)
     varient_type = models.ForeignKey(VarientType,related_name='varient_type',on_delete=models.CASCADE)
     
     def __str__(self):
         return self.varient_values
-
-class ProductVarients(LifecycleModelMixin,models.Model):
-    slug_product_varient = models.SlugField(max_length=500,blank=True,null=True)
-    multivarient_values = models.ForeignKey(VarientValues,related_name='multivarient_values',on_delete=models.CASCADE,null=True,blank=True)
-    Varient_Values = models.ForeignKey(VarientValues,related_name='primary_values',on_delete=models.CASCADE)
-    Selling_Prize = models.DecimalField(max_digits=12,decimal_places=3)
-    Display_Prize = models.DecimalField(max_digits=12,decimal_places=3)
-    meta_title = models.CharField(max_length=256,null=True,blank=True)
-    meta_description = models.TextField(blank=True,null=True)
-    meta_div =models.TextField(blank=True,null=True)
-    Product_stock = models.PositiveIntegerField(blank=True,null=True)
-    sku_code = models.CharField(max_length=100,unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(default='Active',max_length=20, choices=(
-        ('Active','Active'),
-        ('Pending','Pending'),
-        ('Suspended','Suspended'),
-    ))
+            
+class Color(BaseContent):
+    title = models.CharField(max_length=50)
+    image = models.FileField(upload_to='color_image')
     
-    # def __str__(self) -> str:
-    #     if self.Varient_Values.Varient_Values == "Nill":
-    #         return str(self.products.first())
-    #     else:
-    #         return f"{self.products.first()}({self.Varient_Values.Varient_Values})"
-    
-        
-class VarientProductImages(models.Model):
-    parent_varient = models.ForeignKey(ProductVarients,on_delete=models.CASCADE,related_name='varient_image',null=True)
-    Images = models.FileField(upload_to='product_images')
-    display_order = models.IntegerField()
+    def __str__(self):
+        return self.title
 
 class Product(models.Model):
-    Name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250)
     slug = models.SlugField(max_length=500,blank=True,null=True)
-    Last_name = models.CharField(max_length=250,blank=True)
-    Description = models.TextField()
+    last_name = models.CharField(max_length=250,blank=True)
+    description = models.TextField()
     thumbnail_image = models.FileField(upload_to='product_thumbnail',null=True,blank=True)
     single_varient = models.ForeignKey(VarientType,related_name="varient_typel",on_delete=models.CASCADE)
-    multivarient = models.ForeignKey('master.VarientType',related_name="multivarient_ll", on_delete=models.CASCADE,null=True,blank=True)
-    Product_Category = models.ForeignKey(Category,related_name="category_products",on_delete=models.CASCADE,null=True,blank=True)
-    Product_Items = models.ManyToManyField(ProductVarients,related_name='products',verbose_name='ProductItems',blank=True)
+    product_category = models.ForeignKey(Category,related_name="category_products",on_delete=models.CASCADE,null=True,blank=True)
     related_products = models.ManyToManyField('Product',blank=True)
     return_eligibility = models.CharField(max_length=50,choices=(('Yes','Yes'),('No','No')),default='No')
     coming_soon = models.CharField(max_length=50,choices=(('Yes','Yes'),('No','No')),default='No')
@@ -146,11 +120,24 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     display_order = models.IntegerField(blank=True,null=True)
     note = models.TextField(blank=True,null=True)
+    single_varient_value = models.ManyToManyField(VarientValues)
+    color = models.ManyToManyField(Color)
+    selling_prize = models.DecimalField(max_digits=12,decimal_places=2)
+    meta_title = models.CharField(max_length=256,null=True,blank=True)
+    meta_description = models.TextField(blank=True,null=True)
+    meta_div =models.TextField(blank=True,null=True)
+    Product_stock = models.PositiveIntegerField(blank=True,null=True)
+    sku_code = models.CharField(max_length=100,unique=True)
     
     tags = TaggableManager()
 
     def __str__(self) -> str:
-        return self.Name
+        return self.name    
+    
+class VarientProductImages(models.Model):
+    parent_varient = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='varient_image',null=True)
+    Images = models.FileField(upload_to='product_images')
+    display_order = models.IntegerField()
 
 
 class AddressTable(models.Model):
@@ -183,7 +170,7 @@ class Order(LifecycleModelMixin,models.Model):
     order_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     delivery_charge = models.IntegerField(default=0)
-    order_total = models.DecimalField(max_digits=20,decimal_places=3)
+    order_total = models.DecimalField(max_digits=20,decimal_places=2)
     discount = models.IntegerField(null=True,blank=True)
     promocode_discound = models.CharField(max_length=100,null=True,blank=True)
     reward_point_discound = models.CharField(max_length=100,null=True,blank=True)
@@ -220,18 +207,26 @@ class Order(LifecycleModelMixin,models.Model):
 class OrderDetails(models.Model):
     order_id = models.ForeignKey(Order,related_name='products',on_delete=models.CASCADE)
     customer = models.ForeignKey(get_user_model(), related_name="order_customer",on_delete=models.CASCADE)
-    product = models.ForeignKey(ProductVarients,related_name='order_detail',on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,related_name='order_detail',on_delete=models.CASCADE)
     product_name = models.CharField(max_length=555,null=True)
-    product_selling_price = models.DecimalField(max_digits=20,decimal_places=3,null=True,blank=True)
-    product_display_price = models.DecimalField(max_digits=20,decimal_places=3,null=True,blank=True)
+    product_selling_price = models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
+    product_display_price = models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True)
     product_quantity = models.IntegerField(null=True)
     product_varinet_name = models.CharField(max_length=255,null=True)
     product_multivarient_name = models.CharField(max_length=266,null=True)
     product_sku = models.CharField(max_length=255,null=True)
-    amount = models.DecimalField(max_digits=12,decimal_places=3)
-    amount_percentage = models.DecimalField(null=True,blank=True,max_digits=12,decimal_places=3)
+    amount = models.DecimalField(max_digits=12,decimal_places=2)
+    amount_percentage = models.DecimalField(null=True,blank=True,max_digits=12,decimal_places=2)
     count = models.IntegerField()
     order_date = models.DateField(auto_now_add=True)
     order_time = models.TimeField(auto_now_add=True)
     discount = models.IntegerField(default=0)
     serial_number = models.CharField(max_length=512,blank=True,null=True)
+    
+class CartTable(BaseContent):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    size = models.CharField(max_length=45)
+    
+    

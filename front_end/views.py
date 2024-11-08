@@ -1,12 +1,17 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from master.models import *
-from django.db.models import Prefetch
 from django.contrib import messages
+from django.db import transaction
+from django.contrib.auth.decorators import login_required
 
+
+
+def login(request):
+    return render(request,'registration/login.html')
 
 def home(request):
-    product_objs = Product.objects.order_by('-id').prefetch_related(Prefetch('Product_Items', queryset=ProductVarients.objects.all()))[:10]
+    product_objs = Product.objects.order_by('-id')[:10]
     print("product_objs",product_objs)
     context = {
         "product_objs":product_objs,
@@ -23,7 +28,7 @@ def product(request):
 
 def product_detail(request,slug):
     try:
-        product_obj = Product.objects.prefetch_related(Prefetch('Product_Items', queryset=ProductVarients.objects.all())).get(slug=slug)
+        product_obj = Product.objects.get(slug=slug)
     except Product.DoesNotExist:
         messages.error(request,"Product not found")
         return redirect('home')
@@ -31,3 +36,21 @@ def product_detail(request,slug):
         "product_obj":product_obj,
     }
     return render(request,'home/product_detail.html',context)
+
+@login_required
+def add_to_cart(request):
+    with transaction.atomic():
+        try:
+            if request.method == 'POST':
+                user = request.user
+                print("User",user)
+                product_id = request.POST.get('product_id')
+                quantity = request.POST.get('quantity')
+                size = request.data.get('size')
+                CartTable.objects.create(user=user,product_id=product_id,quantity=quantity)
+            else:
+                print("Only Post method")
+        except Exception as e:
+            print("error",e)
+    messages.error(request,"An error occurred")
+    return redirect('home')
