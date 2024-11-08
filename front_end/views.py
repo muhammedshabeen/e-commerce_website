@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from master.models import *
 from django.db.models import Prefetch
+from django.contrib import messages
 
 
 def home(request):
@@ -20,5 +21,13 @@ def contact_us(request):
 def product(request):
     return render(request,'home/product.html')
 
-def product_detail(request):
-    return render(request,'home/product_detail.html')
+def product_detail(request,slug):
+    try:
+        product_obj = Product.objects.prefetch_related(Prefetch('Product_Items', queryset=ProductVarients.objects.all())).get(slug=slug)
+    except Product.DoesNotExist:
+        messages.error(request,"Product not found")
+        return redirect('home')
+    context = {
+        "product_obj":product_obj,
+    }
+    return render(request,'home/product_detail.html',context)

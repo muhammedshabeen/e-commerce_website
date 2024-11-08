@@ -120,6 +120,7 @@ class VarientProductImages(models.Model):
 
 class Product(models.Model):
     Name = models.CharField(max_length=250)
+    slug = models.SlugField(max_length=500,blank=True,null=True)
     Last_name = models.CharField(max_length=250,blank=True)
     Description = models.TextField()
     thumbnail_image = models.FileField(upload_to='product_thumbnail',null=True,blank=True)

@@ -6,8 +6,8 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="inner-content">
-                    <h2>Single Product Page</h2>
-                    <span>Awesome &amp; Creative HTML CSS layout by TemplateMo</span>
+                    <h2>Product Detail</h2>
+                    <span></span>
                 </div>
             </div>
         </div>
@@ -21,43 +21,123 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
-            <div class="left-images">
-                <img src="{% static 'assets/images/single-product-01.jpg' %}" alt="">
-                <img src="{% static 'assets/images/single-product-02.jpg' %}" alt="">
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="right-content">
-                <h4>New Green Jacket</h4>
-                <span class="price">$75.00</span>
-                <ul class="stars">
-                    <li><i class="fa fa-star"></i></li>
-                    <li><i class="fa fa-star"></i></li>
-                    <li><i class="fa fa-star"></i></li>
-                    <li><i class="fa fa-star"></i></li>
-                    <li><i class="fa fa-star"></i></li>
-                </ul>
-                <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod kon tempor incididunt ut labore.</span>
-                <div class="quote">
-                    <i class="fa fa-quote-left"></i><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiuski smod.</p>
+                <div class="left-images" id="image-gallery">
+                    <!-- Default display of the first variant's images -->
+                    {% for variant in product_obj.Product_Items.all %}
+                        {% for image in variant.varient_image.all %}
+                            <img src="{{ image.Images.url }}" alt="" class="product-image" data-variant="{{ variant.id }}">
+                        {% endfor %}
+                    {% endfor %}
                 </div>
-                <div class="quantity-content">
-                    <div class="left-content">
-                        <h6>No. of Orders</h6>
-                    </div>
-                    <div class="right-content">
-                        <div class="quantity buttons_added">
-                            <input type="button" value="-" class="minus"><input type="number" step="1" min="1" max="" name="quantity" value="1" title="Qty" class="input-text qty text" size="4" pattern="" inputmode=""><input type="button" value="+" class="plus">
+            </div>
+            <div class="col-lg-4">
+                <div class="right-content">
+                    <h4>{{product_obj.Name}}-{{product_obj.Last_name}}</h4>
+                    <span class="price">$75.00</span>
+                    <ul class="stars">
+                        <li><i class="fa fa-star"></i></li>
+                        <li><i class="fa fa-star"></i></li>
+                        <li><i class="fa fa-star"></i></li>
+                        <li><i class="fa fa-star"></i></li>
+                        <li><i class="fa fa-star"></i></li>
+                    </ul>
+                    <span>{{product_obj.Description}}</span>
+                    {% comment %} <div class="quote">
+                        <i class="fa fa-quote-left"></i><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiuski smod.</p>
+                    </div> {% endcomment %}
+
+
+                    <div class="quantity-content">
+                        <div class="left-content">
+                            <h6>Colors</h6>
+                        </div>
+                        <div class="right-content">
+                            <div class="quantity buttons_added">
+                                {% for variant in product_obj.Product_Items.all %}
+                                    <label>
+                                        <input type="radio" name="color" value="{{ variant.id }}" onclick="changeVariantImages({{ variant.id }})">
+                                        {{ variant.Varient_Values.varient_values }}
+                                    </label>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="total">
-                    <h4>Total: $210.00</h4>
-                    <div class="main-border-button"><a href="#">Add To Cart</a></div>
+
+                    
+                    
+                    <div class="total">
+                        <h4>Size</h4>
+                        <div class="main-border-button">
+                            {% for variant in product_obj.Product_Items.all %}
+                                <label>
+                                    <input type="checkbox" name="size" value="S">
+                                    {{variant.VarientValues}}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="quantity-content">
+                        <div class="left-content">
+                            <h6>No. of Orders</h6>
+                        </div>
+                        <div class="right-content">
+                            <div class="quantity buttons_added">
+                                <input type="button" value="-" class="minus" onclick="updateQuantity(-1)">
+                                <input type="number" step="1" min="1" max="" name="quantity" value="1" title="Qty" id="quantity_product" class="input-text qty text" size="4" pattern="" inputmode="">
+                                <input type="button" value="+" class="plus" onclick="updateQuantity(1)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="total">
+                        <h4>Total: $210.00</h4>
+                        <div class="main-border-button"><a href="#">Add To Cart</a></div>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </section>
+
+
+
+
+<script>
+    function updateQuantity(change) {
+        
+        const quantityInput = document.getElementById("quantity_product");
+        let currentQuantity = parseInt(quantityInput.value);
+    
+        // Update the quantity based on the change value (+1 or -1)
+        currentQuantity += change;
+    
+        // Ensure the quantity does not fall below 1
+        if (currentQuantity < 1) {
+            currentQuantity = 1;
+        }
+        quantityInput.value = currentQuantity;
+    
+        // Update the input field with the new quantity
+    }
+</script>
+
+<script>
+    function changeVariantImages(variantId) {
+        // Get all product images
+        const allImages = document.querySelectorAll(".product-image");
+    
+        // Hide all images
+        allImages.forEach(img => {
+            img.style.display = "none";
+        });
+    
+        // Display only images for the selected variant
+        const selectedImages = document.querySelectorAll(`.product-image[data-variant='${variantId}']`);
+        selectedImages.forEach(img => {
+            img.style.display = "block";
+        });
+    }    
+</script>
 {% endblock %}
